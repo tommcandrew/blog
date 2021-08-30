@@ -39,7 +39,7 @@
                 <a href="https://regex101.com/">Regex101</a>.</em
               >
             </p>
-            <h2 id="introduction">INTRODUCTION</h2>
+            <h2 id="introduction">Introduction</h2>
             <p>
               Regular expressions (or &lsquo;regexes&rsquo;) are a kind of code
               you can use to target certain words or characters in some text.
@@ -115,7 +115,7 @@
               this would be quite limited. Regular expressions are powerful
               because we can be more general or more specific.
             </p>
-            <h2 id="most-useful-regex-symbols">MOST USEFUL REGEX SYMBOLS</h2>
+            <h2 id="most-useful-regex-symbols">Most useful regex symbols</h2>
             <p>\d - this matches any digit (i.e. number)</p>
             <p>
               \w - this matches any &lsquo;word&rsquo; character (slightly
@@ -138,7 +138,7 @@
               it, it would just mean the letter d or the letter w or the letter
               s.
             </p>
-            <h2 id="flags">FLAGS</h2>
+            <h2 id="flags">Flags</h2>
             <p>
               At the end of the regex, after the last forward slash, we can add
               flags. These are the most important to know:
@@ -152,7 +152,7 @@
               i - this stands for &lsquo;case insensitive&rsquo; (you&rsquo;ll
               generally want this as well)
             </p>
-            <h2 id="one-or-more">ONE OR MORE</h2>
+            <h2 id="one-or-more">One or more</h2>
             <p>
               So if we wanted to extract a number from a string, we could do it
               like this:
@@ -200,7 +200,7 @@
 </code></pre>
             </div>
             <p>Our function would now return [&ldquo;1988&rdquo;].</p>
-            <h2 id="this-many">THIS MANY</h2>
+            <h2 id="this-many">This many</h2>
             <p>
               What if we only wanted to only extract, for example, years from
               the string? The above regex would match any sequence of numbers,
@@ -257,7 +257,7 @@
               ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">regex</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">/\d{9,}/</span>;
 </code></pre>
             </div>
-            <h2 id="any-of-these">ANY OF THESE</h2>
+            <h2 id="any-of-these">Any of these</h2>
             <p>
               If you had an input field on your website for a name, you could
               use a regular expression to validate it. Most people&rsquo;s names
@@ -303,7 +303,7 @@
               ><code class="language-javascript" data-lang="javascript"><span style="color:#e6db74">/[a-z&#39;-]+\s[a-z&#39;-]+/gi</span>
 </code></pre>
             </div>
-            <h2 id="none-of-these">NONE OF THESE</h2>
+            <h2 id="none-of-these">None of these</h2>
             <p>
               Another very useful regex symbol is ^. When it&rsquo;s used inside
               square brackets, it means &lsquo;none of these&rsquo;. For
@@ -328,7 +328,7 @@
               &lsquo;york&rsquo; and &lsquo;cork&rsquo; but not
               &lsquo;fork&rsquo;.
             </p>
-            <h2 id="optional-characters">OPTIONAL CHARACTERS</h2>
+            <h2 id="optional-characters">Optional characters</h2>
             <p>
               We can say that a character/set of characters is optional by using
               a question mark (?) after it:.
@@ -351,7 +351,7 @@
               ><code class="language-javascript" data-lang="javascript"><span style="color:#e6db74">/colou?r/gi</span>
 </code></pre>
             </div>
-            <h2 id="zero-or-more">ZERO OR MORE</h2>
+            <h2 id="zero-or-more">Zero or more</h2>
             <p>
               We saw earlier that the plus sign means &lsquo;one or more&rsquo;
               of the preceding character. If we want to say &lsquo;zero or
@@ -407,7 +407,7 @@
               that we &lsquo;escape&rsquo; the second dot with a backslash as it
               represents a literal dot and not the wildcard.
             </p>
-            <h2 id="startend-of-string">START/END OF STRING</h2>
+            <h2 id="startend-of-string">Start/end of string</h2>
             <p>
               If you remember from before, when used inside square brackets, the
               ^ symbol means &lsquo;none of these characters&rsquo;. However,
@@ -434,7 +434,7 @@
               ><code class="language-java" data-lang="java"><span style="color:#f92672">/^</span><span style="color:#960050;background-color:#1e0010">\</span>d<span style="color:#f92672">{</span>9<span style="color:#f92672">,</span>11<span style="color:#f92672">}</span>$<span style="color:#f92672">/</span>g
 </code></pre>
             </div>
-            <h2 id="lookaheads-and-lookbehinds">LOOKAHEADS AND LOOKBEHINDS</h2>
+            <h2 id="lookaheads-and-lookbehinds">Lookaheads & lookbehinds</h2>
             <p>
               Finally, we can also specify in a regex that a pattern must appear
               directly before or directly after something else. For these
@@ -607,7 +607,7 @@
               by Firefox, Safari or IE.
             </p>
             <h2 id="real-world-example-1-validating-an-email-address">
-              REAL WORLD EXAMPLE #1: VALIDATING AN EMAIL ADDRESS
+              Read world example #1: Validating an email address
             </h2>
             <p>
               We now know enough to be able to write a regex that matches email
@@ -728,7 +728,7 @@
               addresses and checking that they match.
             </p>
             <h2 id="real-world-example-2-extracting-sentences-from-a-text">
-              REAL WORLD EXAMPLE #2: EXTRACTING SENTENCES FROM A TEXT
+              Real world example #2: Extracting sentences from a text
             </h2>
             <p>
               Another situation where you might need to use a regex is if you
