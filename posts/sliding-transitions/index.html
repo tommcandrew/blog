@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+
+<html lang="" data-theme="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+
+    <title>Sliding page transitions - Tom&#39;s Dev Blog</title>
+
+    <link
+      rel="stylesheet"
+      href="../../style.css"
+    />
+  </head>
+  <body>
+    
+    <div class="container">
+      <header class="common-header">
+        <div class="header-top">
+          <h1 class="site-title">
+            <a href="/">Tom&#39;s Dev Blog</a>
+          </h1>
+        </div>
+
+        
+      </header>
+      <main id="main" tabindex="-1">
+        <article class="post h-entry">
+          <header class="post-header">
+            <h1 class="p-name post-title">Sliding page transitions</h1>
+          </header>
+          <div class="content e-content">
+            <p>
+              <img src="../../images/sliding-transitions.gif" alt="Sliding transitions" />
+            </p>
+            <p>
+              We&rsquo;re going to look at how to implement sliding page
+              transitions in a React app. The application will have three pages
+              which the user can navigate between using arrows. These page
+              changes will be animated - appearing to slide in and out of view.
+              You can find the source code
+              <a href="https://github.com/tommcandrew/sliding-page-transitions"
+                >here</a
+              >.
+            </p>
+            <p>
+              To help us achieve our goals, we&rsquo;ll be using the
+              <a href="https://reactcommunity.org/react-transition-group/"
+                >react-transition-group</a
+              >
+              library for this project.
+            </p>
+            <p>
+              Let&rsquo;s start by creating a new React project with
+              <em>create-react-app</em>:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-bash" data-lang="bash">npx create-react-app sliding-page-transitions
+</code></pre>
+            </div>
+            <p>There will be 3 main stages in the process:</p>
+            <p>
+              Creating our three page components Setting up our App component
+              (dependencies, state, routes, JSX structure) CSS (general styling
+              and animations)
+            </p>
+            <h3 id="creating-the-three-page-components">
+              Creating the three page components
+            </h3>
+            <p>Create a components folder in the src folder.</p>
+            <p>
+              Add three functional components to this folder called Home,
+              Second, Third.
+            </p>
+            <p>
+              We&rsquo;ll need to know the current page the user is looking at
+              in order to be able to do the transitions properly. The way we can
+              do this is by having a <em>currentPage</em> variable in state in
+              our main App component. Every time one of our three pages mounts,
+              we can update this variable. As we&rsquo;re using functional
+              components for our three pages, we&rsquo;ll use an effect hook
+              with an empty array passed in as a second argument. so it will
+              only be called once, when the component mounts.
+            </p>
+            <p>
+              So import <em>useEffect</em> from React and add it to the
+              component with a function inside called
+              <em>setCurrentPage</em> and pass in the page&rsquo;s pathname as
+              an argument (e.g. <em>/</em> if it&rsquo;s the Home page,
+              <em>/second</em> if it&rsquo;s the second page - don&rsquo;t
+              forget the slash). We&rsquo;ll create and pass down this
+              <em>setCurrentPage</em> function to the component via props later.
+            </p>
+            <p>
+              Each component will return a container div. This div will have two
+              classNames - the first will be the same as the name of the
+              component while the second will be a dynamic className - a
+              <em>direction</em> variable we&rsquo;ll pass down through props.
+              You can add both with simple string concatentation surrounded with
+              curly brackets - don&rsquo;t forget to leave a space after the
+              first one (see below).
+            </p>
+            <p>
+              Inside this container div we&rsquo;ll put a h1 with the name of
+              the page followed by two arrows for navigation (these can be
+              inside span tags). When the user clicks on one of the arrows, it
+              will trigger a function called <em>setNextPage</em> which sends
+              the page&rsquo;s pathname (including the slash) to App where a
+              nextPage variable in state wlil be set (we&rsquo;ll create this
+              variable and function later and pass them down as props).
+            </p>
+            <p>
+              Finally, make sure that you export each component. This is what
+              the Home component should look like:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react">    <span style="color:#66d9ef">import</span> <span style="color:#a6e22e">React</span>, { <span style="color:#a6e22e">useEffect</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#39;react&#39;</span>;
+
+    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">Home</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">props</span> =&gt; {
+      <span style="color:#a6e22e">useEffect</span>(() =&gt; {
+        <span style="color:#a6e22e">props</span>.<span style="color:#a6e22e">_setCurrentPage_</span>(<span style="color:#e6db74">&#39;/&#39;</span>);
+      }, []);
+
+      <span style="color:#66d9ef">return</span> (
+        &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">className</span><span style="color:#f92672">=</span>{<span style="color:#e6db74">&#39;home  &#39;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">props</span>.<span style="color:#a6e22e">direction</span>}&gt;
+          &lt;<span style="color:#f92672">h1</span>&gt;<span style="color:#a6e22e">Home</span> <span style="color:#a6e22e">Page</span>&lt;/<span style="color:#f92672">h1</span>&gt;
+          &lt;<span style="color:#f92672">span</span> <span style="color:#a6e22e">onClick</span><span style="color:#f92672">=</span>{() =&gt; <span style="color:#a6e22e">props</span>.<span style="color:#a6e22e">setNextPage</span>(<span style="color:#e6db74">&#39;/third&#39;</span>)}&gt;<span style="color:#960050;background-color:#1e0010">←</span> <span style="color:#a6e22e">Go</span> <span style="color:#a6e22e">to</span> <span style="color:#a6e22e">Third</span> <span style="color:#a6e22e">Page</span>&lt;<span style="color:#f92672">span</span>&gt;
+          &lt;<span style="color:#f92672">span</span> <span style="color:#a6e22e">onClick</span><span style="color:#f92672">=</span>{() =&gt; <span style="color:#a6e22e">props</span>.<span style="color:#a6e22e">setNextPage</span>(<span style="color:#e6db74">&#39;/second&#39;</span>)}&gt;<span style="color:#a6e22e">Go</span> <span style="color:#a6e22e">to</span> <span style="color:#a6e22e">Second</span> <span style="color:#a6e22e">Page</span> <span style="color:#960050;background-color:#1e0010">→</span>&lt;/<span style="color:#f92672">span</span>&gt;
+        &lt;/<span style="color:#f92672">div</span>&gt;
+      );
+    };
+
+    <span style="color:#66d9ef">export</span> <span style="color:#66d9ef">default</span> <span style="color:#a6e22e">Home</span>;
+</code></pre>
+            </div>
+            <h3 id="setting-up-the-app-component">
+              Setting up the App component
+            </h3>
+            <p>
+              Now we have our three page components set up, let&rsquo;s move to
+              the parent App component. First, you can delete all the
+              boilerplate JSX inside the return statement as well as the logo
+              import at the top of the page. Then, install the two dependencies
+              that we need for this project. They are
+              <em>react-router-dom</em> (to allow page navigation) and
+              <em>react-transition-group</em> (to help us add animated
+              transitions).
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-bash" data-lang="bash">  npm i react-router-dom react-transition-group
+</code></pre>
+            </div>
+            <p>
+              When this is done, import the following components from these
+              packages at the top of your App file:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Router</span>, <span style="color:#a6e22e">Route</span>, <span style="color:#a6e22e">Switch</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;react-router-dom&#34;</span>;
+<span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">TransitionGroup</span>, <span style="color:#a6e22e">CSSTransition</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;react-transition-group&#34;</span>;
+</code></pre>
+            </div>
+            <p>
+              React-transition-group has four components in total but we only
+              need these two.
+            </p>
+            <p>Next, import the three page components that we created:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Home</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;./components/Home&#34;</span>;
+<span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Second</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;./components/Second&#34;</span>;
+<span style="color:#66d9ef">import</span> <span style="color:#a6e22e">Third</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;./components/Third&#34;</span>;
+</code></pre>
+            </div>
+            <p>
+              Add a basic functional component if you don&rsquo;t already have
+              one.
+            </p>
+            <p>
+              We&rsquo;ll be using two React Hooks - <em>useState</em> and
+              <em>useEffect</em> so import these:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">React</span>, { <span style="color:#a6e22e">useState</span>, <span style="color:#a6e22e">useEffect</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;react&#34;</span>;
+</code></pre>
+            </div>
+            <p>
+              We&rsquo;ll use the state hook to hold the variables
+              <em>currentPage</em>, <em>nextPage</em> as well as a direction
+              variable for each page (with null provided as an inital value).
+              Add the following inside the component:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#66d9ef">const</span> [<span style="color:#a6e22e">nextPage</span>, <span style="color:#a6e22e">setNextPage</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">useState</span>(<span style="color:#66d9ef">null</span>);
+<span style="color:#66d9ef">const</span> [<span style="color:#a6e22e">currentPage</span>, <span style="color:#a6e22e">_setCurrentPage_</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">useState</span>(<span style="color:#66d9ef">null</span>);
+<span style="color:#66d9ef">const</span> [<span style="color:#a6e22e">homeDirection</span>, <span style="color:#a6e22e">setHomeDirection</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">useState</span>(<span style="color:#66d9ef">null</span>);
+<span style="color:#66d9ef">const</span> [<span style="color:#a6e22e">secondDirection</span>, <span style="color:#a6e22e">setSecondDirection</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">useState</span>(<span style="color:#66d9ef">null</span>);
+<span style="color:#66d9ef">const</span> [<span style="color:#a6e22e">thirdDirection</span>, <span style="color:#a6e22e">setThirdDirection</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">useState</span>(<span style="color:#66d9ef">null</span>);
+</code></pre>
+            </div>
+            <p>
+              Whenever the nextPage variable is updated (when a user clicks on
+              an arrow), we want to call a function that sets the direction
+              variables so that the pages slide in the correct direction.
+              We&rsquo;ll use the effect hook like we did in the page
+              components. However, this time, instead of leaving the array
+              empty, we&rsquo;ll insert the nextPage variable into the array so
+              the function is called whenever this changes:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#a6e22e">useEffect</span>(() =&gt; {
+  <span style="color:#a6e22e">updatePageDirections</span>(<span style="color:#a6e22e">nextPage</span>);
+}, [<span style="color:#a6e22e">nextPage</span>]);
+</code></pre>
+            </div>
+            <p>
+              When the App component first mounts, all of the variables in state
+              will change because they&rsquo;ll be updated with the initial
+              values we pass in (null in this case). This means that useEffect
+              will be triggered when you start the app. We don&rsquo;t really
+              want that to happen so let&rsquo;s add a condition inside the
+              useEffect to check whether the nextPage variable has actually been
+              set:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#a6e22e">useEffect</span>(() =&gt; {
+  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">nextPage</span> <span style="color:#f92672">===</span> <span style="color:#66d9ef">null</span>) {
+    <span style="color:#66d9ef">return</span>;
+  }
+  <span style="color:#a6e22e">updatePageDirections</span>(<span style="color:#a6e22e">nextPage</span>);
+}, [<span style="color:#a6e22e">nextPage</span>]);
+</code></pre>
+            </div>
+            <p>
+              Now let&rsquo;s create this <em>updatePageDirections</em> function
+              that we just called. In this function, we need to do three things:
+            </p>
+            <ul>
+              <li>
+                <p>
+                  declare variables for each direction (these can have the same
+                  names as the direction variables in state)
+                </p>
+              </li>
+              <li>
+                <p>
+                  assign a direction (right, left or null) to each variable
+                  depending on what pages the user is moving from/to
+                </p>
+              </li>
+              <li>
+                <p>save the variables to state</p>
+                <p>
+                  Our function (which should be inside App) should look
+                  something like this:
+                </p>
+              </li>
+            </ul>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">updatePageDirections</span> <span style="color:#f92672">=</span> () =&gt; {
+  <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">homeDirection</span>, <span style="color:#a6e22e">secondDirection</span>, <span style="color:#a6e22e">thirdDirection</span>;
+
+  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">currentPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/&#34;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">nextPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/second&#34;</span>) {
+    <span style="color:#a6e22e">homeDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;left&#34;</span>;
+    <span style="color:#a6e22e">secondDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;right&#34;</span>;
+    <span style="color:#a6e22e">thirdDirection</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+  } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">currentPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/second&#34;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">nextPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/third&#34;</span>) {
+    <span style="color:#a6e22e">homeDirection</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+    <span style="color:#a6e22e">secondDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;left&#34;</span>;
+    <span style="color:#a6e22e">thirdDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;right&#34;</span>;
+  } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">currentPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/third&#34;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">nextPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/&#34;</span>) {
+    <span style="color:#a6e22e">homeDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;right&#34;</span>;
+    <span style="color:#a6e22e">secondDirection</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+    <span style="color:#a6e22e">thirdDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;left&#34;</span>;
+  } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">currentPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/third&#34;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">nextPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/second&#34;</span>) {
+    <span style="color:#a6e22e">homeDirection</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+    <span style="color:#a6e22e">secondDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;left&#34;</span>;
+    <span style="color:#a6e22e">thirdDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;right&#34;</span>;
+  } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">currentPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/second&#34;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">nextPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/&#34;</span>) {
+    <span style="color:#a6e22e">homeDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;left&#34;</span>;
+    <span style="color:#a6e22e">secondDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;right&#34;</span>;
+    <span style="color:#a6e22e">thirdDirection</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+  } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">currentPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/&#34;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">nextPage</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;/third&#34;</span>) {
+    <span style="color:#a6e22e">homeDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;right&#34;</span>;
+    <span style="color:#a6e22e">secondDirection</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+    <span style="color:#a6e22e">thirdDirection</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;left&#34;</span>;
+  }
+
+  <span style="color:#a6e22e">setHomeDirection</span>(<span style="color:#a6e22e">homeDirection</span>);
+  <span style="color:#a6e22e">setSecondDirection</span>(<span style="color:#a6e22e">secondDirection</span>);
+  <span style="color:#a6e22e">setThirdDirection</span>(<span style="color:#a6e22e">thirdDirection</span>);
+};
+</code></pre>
+            </div>
+            <p>
+              Note that when we assign a direction to a page, for example
+              &lsquo;left&rsquo;, this means that this page will either be
+              entering from the left or exiting to the left (an additional
+              &lsquo;enter&rsquo; or &lsquo;exit&rsquo; className will be added
+              automatically by CSSTransition during transition). We&rsquo;re
+              assigning null as the direction for whichever page is not going to
+              be visible during the transition (though this isn&rsquo;t
+              essential).
+            </p>
+            <p>
+              Once the page directions have been updated in state, we&rsquo;ll
+              want the page to change. We can make this happen by using the
+              history object. The simplest way to access this object is to
+              import the <em>createBrowserHistory</em> function from the
+              <em>history</em> library. This is a built-in library in React so
+              you don&rsquo;t need to install it. Then create a variable called
+              <em>history</em> and assign it the result of instantiating this
+              class. This will be a new history object that we can manipulate.
+              Add these lines to the top of the file:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">createBrowserHistory</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;history&#34;</span>;
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">history</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">createBrowserHistory</span>();
+</code></pre>
+            </div>
+            <p>
+              Now, to change the page, all we need to do it use the history
+              object&rsquo;s push method to tell it the pathname we want to
+              navigate to. For example, to nagivate to the second page, you
+              would use:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#a6e22e">history</span>.<span style="color:#a6e22e">push</span>(<span style="color:#e6db74">&#34;/second&#34;</span>);
+</code></pre>
+            </div>
+            <p>
+              As mentioned before, we want to change the page as soon as the
+              page directions have been updated in state. You might think that
+              we could use the useEffect hook with the direction variables
+              included in the array to trigger a function once these have
+              changed. There&rsquo;s a problem with this though. The useEffect
+              hook is only called if the value of the variable(s) that you pass
+              into the array changes. So if the new value is the same as the old
+              one, then nothing happens.
+            </p>
+            <p>
+              Imagine we navigate from the second page to the third page. The
+              direction of the second page would be set to <em>left</em> beacuse
+              it&rsquo;s exiting to the left and the direction of the third page
+              would be set to <em>right</em> because it&rsquo;s entering from
+              the right. Now, imagine we then want to go back to the second
+              page. The third page would now be exiting to the right instead of
+              entering, but its direction would still be set to
+              <em>right</em> and second page&rsquo;s direction would still be
+              <em>left</em>. That means, even though we&rsquo;re changing
+              directions, the actual direction variables in state won&rsquo;t
+              change and won&rsquo;t trigger our useEffect function. The result
+              would be that you could only navigate in one direction. Obviously
+              that&rsquo;s no good so we need another way to trigger the
+              useEffect hook.
+            </p>
+            <p>
+              The (slightly hacky) solution I&rsquo;ve used is to create a new
+              variable in state called transitionCount which can have an initial
+              value of 0:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#66d9ef">const</span> [<span style="color:#a6e22e">transitionCount</span>, <span style="color:#a6e22e">setTransitionCount</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">useState</span>(<span style="color:#ae81ff">0</span>);
+</code></pre>
+            </div>
+            <p>
+              We can then update its value (incrementing by one) directly after
+              we update the values of the directions (at the bottom of the
+              updatePageDirections function):
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#a6e22e">setHomeDirection</span>(<span style="color:#a6e22e">homeDirection</span>);
+<span style="color:#a6e22e">setSecondDirection</span>(<span style="color:#a6e22e">secondDirection</span>);
+<span style="color:#a6e22e">setThirdDirection</span>(<span style="color:#a6e22e">thirdDirection</span>);
+<span style="color:#a6e22e">setTransitionCount</span>(<span style="color:#a6e22e">transitionCount</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</code></pre>
+            </div>
+            <p>
+              As this value only changes after the directions are set, and as
+              its new value will never be the same as the previous one, we can
+              use this variable to indicate that the page should change. So go
+              ahead and add this to our component:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#a6e22e">useEffect</span>(() =&gt; {
+  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">nextPage</span> <span style="color:#f92672">===</span> <span style="color:#66d9ef">null</span>) {
+    <span style="color:#66d9ef">return</span>;
+  }
+  <span style="color:#a6e22e">history</span>.<span style="color:#a6e22e">push</span>(<span style="color:#a6e22e">nextPage</span>);
+}, [<span style="color:#a6e22e">transitionCount</span>]);
+</code></pre>
+            </div>
+            <p>
+              Now lets add some JSX to our App component. First of all, delete
+              anything already inside the return statement and insert a pair of
+              Router tags (not BrowserRouter) which will surround everything.
+              Router requires a history prop so insert this with the value set
+              to history.
+            </p>
+            <p>
+              In a couple of the following components, we&rsquo;re going to need
+              access to React Router&rsquo;s location object. This object is
+              made available via props to all Route components. So let&rsquo;s
+              wrap everything in a single self-closing Route tag to get access
+              to it later on. Because we need to pass down the props,
+              we&rsquo;ll use the render prop of Route. This render prop takes
+              an anonymous function (wrapped in curly brackets) with a props
+              parameter. This anonymous function will return all of the other
+              components.
+            </p>
+            <p>
+              At this point, the return statement of App should look like this:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react">    <span style="color:#66d9ef">return</span> (
+        &lt;<span style="color:#f92672">Router</span> <span style="color:#a6e22e">history</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">history</span>}&gt;
+            &lt;<span style="color:#f92672">Route</span>
+                <span style="color:#a6e22e">render</span><span style="color:#f92672">=</span>{(<span style="color:#a6e22e">props</span>) =&gt; {
+                    <span style="color:#66d9ef">return</span> (
+                        <span style="color:#75715e">//our other components will go here
+</span><span style="color:#75715e"></span>                    );
+                }}
+            /&gt;
+        &lt;/<span style="color:#f92672">Router</span>&gt;
+    );
+</code></pre>
+            </div>
+            <p>
+              This anonymous function should first return a container div. You
+              can give it a className of <em>page-container</em>. You can think
+              of this as the static frame inside which other things move in and
+              out.
+            </p>
+            <p>
+              Inside this add a pair of <em>TransitionGroup</em> tags.
+              TransitionGroup is required when you&rsquo;re dealing with
+              multiple components.
+            </p>
+            <p>
+              Inside these, add a pair of <em>CSSTransition</em> tags.
+              CSSTransition adds special class names to components indicating
+              whether they&rsquo;re entering or exiting the DOM. As this is a
+              child component of TransitionGroup, it requires a unique key prop.
+              We can use props.location.key as the value (provided by the Route
+              tag that we wrapped everything in).
+            </p>
+            <p>
+              You&rsquo;ll also want to give it a timeout prop. This is the
+              duration you want your transition animation to last. Let&rsquo;s
+              give it a value of 500 (milliseconds) for now. You can change it
+              later if you like.
+            </p>
+            <p>
+              There&rsquo;s another optional prop you can give to CSSTransition
+              called <em>classNames</em> (plural). Whatever string you give this
+              prop as a value will be prepended to the className automatically
+              applied by CSSTransition. So, for example, if you added
+              classNames=&ldquo;page&rdquo;, the component would have the class
+              <em>page-enter</em> when entering the DOM and
+              <em>page-exit</em> when leaving the DOM. This is useful if
+              you&rsquo;re applying different animations to different
+              components. However, in our case, we&rsquo;re applying the same
+              slide animation to all our components so we don&rsquo;t need to
+              add anything.
+            </p>
+            <p>
+              Now inside the CSSTransition tags, add a pair of Switch tags with
+              a prop called location with a value of props.location (if you
+              don&rsquo;t include this, the Switch component won&rsquo;t be
+              aware of page changes and our animations won&rsquo;t work).
+            </p>
+            <p>The return statement of App should should now look like this:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react"><span style="color:#66d9ef">return</span> (
+  &lt;<span style="color:#f92672">Router</span> <span style="color:#a6e22e">history</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">history</span>}&gt;
+    &lt;<span style="color:#f92672">Route</span>
+      <span style="color:#a6e22e">render</span><span style="color:#f92672">=</span>{(<span style="color:#a6e22e">props</span>) =&gt; {
+        <span style="color:#66d9ef">return</span> (
+          &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">className</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;page-container&#34;</span>&gt;
+            &lt;<span style="color:#f92672">TransitionGroup</span>&gt;
+              &lt;<span style="color:#f92672">CSSTransition</span> <span style="color:#a6e22e">key</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">props</span>.<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">key</span>} <span style="color:#a6e22e">timeout</span><span style="color:#f92672">=</span>{<span style="color:#ae81ff">500</span>}&gt;
+                &lt;<span style="color:#f92672">Switch</span> <span style="color:#a6e22e">location</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">props</span>.<span style="color:#a6e22e">location</span>}&gt;
+                  <span style="color:#75715e">//we&#39;ll add our routes here
+</span><span style="color:#75715e"></span>                &lt;/<span style="color:#f92672">Switch</span>&gt;
+              &lt;/<span style="color:#f92672">CSSTransition</span>&gt;
+            &lt;/<span style="color:#f92672">TransitionGroup</span>&gt;
+          &lt;/<span style="color:#f92672">div</span>&gt;
+        );
+      }}
+    /&gt;
+  &lt;/<span style="color:#f92672">Router</span>&gt;
+);
+</code></pre>
+            </div>
+            <p>
+              Now, inside the Switch tags we&rsquo;re going to add a Route for
+              each of our three pages. We&rsquo;ll use a single self-closing
+              <!-- raw HTML omitted -->
+              tag for each. It will require two props. The first is
+              <em>path</em>, the value of which will be the pathname of the page
+              (e.g. <em>/</em> for the home page, <em>/second</em> for the
+              second page). The second will be render. The anonymous function we
+              pass as a value to this will return the component that we want to
+              render. Each component needs 3 props - <em>direction</em>,
+              <em>setCurrentPage</em> and <em>setNextPage</em>. The last two
+              will be the same for all three but the direction prop will be
+              different.
+            </p>
+            <p>This is what the first one should look like:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-react" data-lang="react">&lt;<span style="color:#f92672">Route</span>
+  <span style="color:#a6e22e">exact</span>
+  <span style="color:#a6e22e">path</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/&#34;</span>
+  <span style="color:#a6e22e">render</span><span style="color:#f92672">=</span>{(<span style="color:#a6e22e">props</span>) =&gt; {
+    <span style="color:#66d9ef">return</span> (
+      &lt;<span style="color:#f92672">Home</span>
+        <span style="color:#a6e22e">direction</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">homeDirection</span>}
+        <span style="color:#a6e22e">_setCurrentPage_</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">setCurrentPage</span>}
+        <span style="color:#a6e22e">setNextPage</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">setNextPage</span>}
+      /&gt;
+    );
+  }}
+/&gt;
+</code></pre>
+            </div>
+            <p>
+              Note that, for the Home component, you also need to add the
+              <em>exact</em> keyword before path. This is only required when the
+              pathname of a component is <em>/</em>.
+            </p>
+            <p>
+              We&rsquo;re now finished with our App component and at this point
+              you should be able to navigate between the three pages with the
+              arrows, although there won&rsquo;t be any animation. If you open
+              the elements tab in developer tools you&rsquo;ll be able to see
+              the enter/enter-active/enter-done and exit/exit-active/exit-done
+              classes being applied to the page components by CSSTransition as
+              you change page. We&rsquo;ll use these classes when we add the
+              animations in the next stage.
+            </p>
+            <h3 id="css">CSS</h3>
+            <p>
+              Go to the <em>app.css</em> file and delete all the default styling
+              (you can leave the default styling in index.css if you want). Now,
+              if you remember, there&rsquo;s a container div that wraps around
+              the TransitionGroup and CSSTransition components and everything
+              they contain. We gave it a className of <em>page-container</em>.
+              This div needs to be positioned relatively because the elements
+              inside it will be positioned absolutely. We&rsquo;ll also give it
+              full width and height:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-css" data-lang="css">.<span style="color:#a6e22e">page-container</span> {
+  <span style="color:#66d9ef">position</span>: <span style="color:#66d9ef">relative</span>;
+  <span style="color:#66d9ef">width</span>: <span style="color:#ae81ff">100</span><span style="color:#66d9ef">vw</span>;
+  <span style="color:#66d9ef">height</span>: <span style="color:#ae81ff">100</span><span style="color:#66d9ef">vh</span>;
+}
+</code></pre>
+            </div>
+            <p>
+              Next, give the container divs of the actual pages that are moving
+              (i.e. Home, Second and Third) a position of <em>absolute</em>.
+              This is to allow them to move freely. They also need a height and
+              width of 100%. You can also add <em>text-align: center</em> if you
+              want the title and arrows in the center of the page.
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-css" data-lang="css">.<span style="color:#a6e22e">home</span><span style="color:#f92672">,</span>
+.<span style="color:#a6e22e">second</span><span style="color:#f92672">,</span>
+.<span style="color:#a6e22e">third</span> {
+  <span style="color:#66d9ef">position</span>: <span style="color:#66d9ef">absolute</span>;
+  <span style="color:#66d9ef">height</span>: <span style="color:#ae81ff">100</span><span style="color:#66d9ef">%</span>;
+  <span style="color:#66d9ef">width</span>: <span style="color:#ae81ff">100</span><span style="color:#66d9ef">%</span>;
+  <span style="color:#66d9ef">text-align</span>: <span style="color:#66d9ef">center</span>;
+}
+</code></pre>
+            </div>
+            <p>
+              Now you can add some colour to the background of each page to be
+              able to see the animation better. Choose any colours you want.
+              These are the colours I&rsquo;ve chosen:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-css" data-lang="css">.<span style="color:#a6e22e">home</span> {
+  <span style="color:#66d9ef">background</span>: <span style="color:#66d9ef">lightcoral</span>;
+}
+.<span style="color:#a6e22e">second</span> {
+  <span style="color:#66d9ef">background</span>: <span style="color:#66d9ef">lightseagreen</span>;
+}
+.<span style="color:#a6e22e">third</span> {
+  <span style="color:#66d9ef">background</span>: <span style="color:#66d9ef">lightslategray</span>;
+}
+</code></pre>
+            </div>
+            <p>
+              Let&rsquo;s also make the navigation buttons look a bit better:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-css" data-lang="css"><span style="color:#f92672">span</span> {
+  <span style="color:#66d9ef">cursor</span>: <span style="color:#66d9ef">pointer</span>;
+  <span style="color:#66d9ef">font-size</span>: <span style="color:#ae81ff">1.5</span><span style="color:#66d9ef">rem</span>;
+  <span style="color:#66d9ef">margin</span>: <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">20</span><span style="color:#66d9ef">px</span>;
+}
+<span style="color:#f92672">span</span>:<span style="color:#a6e22e">hover</span> {
+  <span style="color:#66d9ef">color</span>: <span style="color:#66d9ef">white</span>;
+}
+</code></pre>
+            </div>
+            <p>
+              Now let&rsquo;s create the animations. We&rsquo;ll need four
+              altogether - I&rsquo;m going to call them <em>enterLeft</em>,
+              <em>exitLeft</em>, <em>enterRight</em>, <em>exitRight</em>.
+              Let&rsquo;s do the enterLeft one first. We&rsquo;ll use the
+              <em>transform: translate</em> property to move the page
+              horizontally. In this case we want it to be off-screen to the left
+              at the start and then move into view. So its starting value should
+              be -100% and it should be 0% at the end of the animation. So our
+              full animation will look like this:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-css" data-lang="css">@<span style="color:#66d9ef">keyframes</span> <span style="color:#f92672">enterLeft</span> {
+  <span style="color:#f92672">from</span> {
+    <span style="color:#66d9ef">transform</span>: translate(<span style="color:#ae81ff">-100</span><span style="color:#66d9ef">%</span>);
+  }
+  <span style="color:#f92672">to</span> {
+    <span style="color:#66d9ef">transform</span>: translate(<span style="color:#ae81ff">0</span><span style="color:#66d9ef">%</span>);
+  }
+}
+</code></pre>
+            </div>
+            <p>
+              Do the same for the other three animations. These are the values
+              you&rsquo;ll use:
+            </p>
+            <ul>
+              <li>exitLeft: from 0% to -100%</li>
+              <li>enterRight: from 100% to 0%</li>
+              <li>exitRight from 0% to 100%</li>
+            </ul>
+            <p>
+              The final step is to apply these animations to our pages. As
+              we&rsquo;ve seen, CSSTransition automatically applies different
+              classes to the components that are transitioning. So if a
+              component is entering the screen, it will have the class
+              <em>enter</em>. If it&rsquo;s exiting the screen, it will have the
+              class <em>exit</em>. It also adds an additional class depending on
+              whether the transition is <em>active</em> or <em>done</em> but we
+              won&rsquo;t use them in this project. So all we need to do is
+              apply our animations to these classes like so:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-css" data-lang="css">.<span style="color:#a6e22e">left</span>.<span style="color:#a6e22e">enter</span> {
+  <span style="color:#66d9ef">animation</span>: enterLeft <span style="color:#ae81ff">0.5</span><span style="color:#66d9ef">s</span>;
+}
+.<span style="color:#a6e22e">left</span>.<span style="color:#a6e22e">exit</span> {
+  <span style="color:#66d9ef">animation</span>: exitLeft <span style="color:#ae81ff">0.5</span><span style="color:#66d9ef">s</span>;
+}
+.<span style="color:#a6e22e">right</span>.<span style="color:#a6e22e">enter</span> {
+  <span style="color:#66d9ef">animation</span>: enterRight <span style="color:#ae81ff">0.5</span><span style="color:#66d9ef">s</span>;
+}
+.<span style="color:#a6e22e">right</span>.<span style="color:#a6e22e">exit</span> {
+  <span style="color:#66d9ef">animation</span>: exitRight <span style="color:#ae81ff">0.5</span><span style="color:#66d9ef">s</span>;
+}
+</code></pre>
+            </div>
+            <p>
+              There are two important things to remeber here. The first is that,
+              since we&rsquo;re targeting elements which have both classes,
+              there shouldn&rsquo;t be any space between the two class names.
+              The second is that the <em>animation-duration</em> must be the
+              same as the duration you provided to the timeout property in the
+              CSSTransition component in App. If these are different the
+              animation won&rsquo;t work properly.
+            </p>
+            <p>
+              And that&rsquo;s it! Your pages should be transitioning smoothly
+              now. Try customising these animations by adjusting the duration or
+              the timing-function.
+            </p>
+          </div>
+
+          <div class="post-info">
+            <div class="post-date dt-published">2020-01-01</div>
+
+            <a class="post-hidden-url u-url" href="/posts/sliding-transitions/"
+              >/posts/sliding-transitions/</a
+            >
+            <a
+              href=""
+              class="p-name p-author post-hidden-author h-card"
+              rel="me"
+            ></a>
+
+            <div class="post-taxonomies"></div>
+          </div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

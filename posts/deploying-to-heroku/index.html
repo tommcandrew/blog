@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="" data-theme="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <title>Deploying a MERN app for free to Heroku - Tom&#39;s Dev Blog</title>
+    <meta name="description" content="" />
+    <link
+      rel="stylesheet"
+      href="../../style.css"
+    />
+  </head>
+  <body>
+    
+    <div class="container">
+      <header class="common-header">
+        <div class="header-top">
+          <h1 class="site-title">
+            <a href="/">Tom&#39;s Dev Blog</a>
+          </h1>
+        </div>
+
+        
+      </header>
+      <main id="main" tabindex="-1">
+        <article class="post h-entry">
+          <header class="post-header">
+            <h1 class="p-name post-title">
+              Deploying a MERN app for free to Heroku
+            </h1>
+          </header>
+          <div class="content e-content">
+            <p>
+              We&rsquo;re going to learn how to build and deploy a MERN-stack
+              app (MongoDB, Express, React, Node) for free to Heroku. For this
+              example, we&rsquo;ll build a simple app where the user can add the
+              name of a country and the capital city and this information will
+              be displayed in a table.
+            </p>
+            <p><img src="../../images/countries.png" alt="MERN app" /></p>
+            <p>
+              You can find the source code
+              <a href="https://github.com/tommcandrew/mern-country-list">here</a
+              >.
+            </p>
+            <p>
+              If you already have a MERN app ready to deploy, you can use that
+              but you&rsquo;ll need to make a number of small changes to your
+              code. In the following section I&rsquo;ve highlighted the lines
+              where these are mentioned. Also, your front-end directory
+              (<em>client</em>) should be inside the main project directory with
+              the file containing the Express server at the top level. This is
+              my project structure:
+            </p>
+            <ul>
+              <li>
+                main-project-folder
+                <ul>
+                  <li>server.js (this is the Express server)</li>
+                  <li>
+                    client (this is the create-react-app folder for all front
+                    end code)
+                    <ul>
+                      <li>models</li>
+                      <li>node_modules</li>
+                      <li>.gitignore</li>
+                      <li>package.json</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <h2 id="building-the-app">BUILDING THE APP</h2>
+            <h3 id="the-back-end">THE BACK-END</h3>
+            <p>
+              First, create a folder for your project (I&rsquo;ll call it
+              <em>country-info</em>) and inside create a new JavaScript file -
+              <em>server.js</em>. Open your terminal, navigate to the project
+              directory and run the following commands:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">npm</span> <span style="color:#a6e22e">init</span>
+</code></pre>
+            </div>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">git</span> <span style="color:#a6e22e">init</span>
+</code></pre>
+            </div>
+            <p>
+              Add a <em>.gitignore</em> file, type in node_modules and save, so
+              that folder isn&rsquo;t included when we push to our remote repo.
+            </p>
+            <p>
+              We&rsquo;ll now set up a basic Express server in our
+              <em>server.js</em> file. First, install the two dependencies
+              we&rsquo;ll be using - Express and Mongoose. Require these two
+              dependencies at the top of the file:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">express</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;express&#34;</span>);
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">mongoose</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;mongoose&#34;</span>);
+</code></pre>
+            </div>
+            <p>
+              I also recommend installing the Nodemon package so you don&rsquo;t
+              need to restart your server every time you save a change. You can
+              install this globally on your machine by adding the global flag:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">npm</span> <span style="color:#a6e22e">i</span> <span style="color:#a6e22e">nodemon</span> <span style="color:#f92672">-</span><span style="color:#a6e22e">g</span>
+</code></pre>
+            </div>
+            <p>Let&rsquo;s set up our app with:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">app</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">express</span>();
+</code></pre>
+            </div>
+            <p>
+              We now have to tell the app which port to use. This will be
+              different depending on whether you&rsquo;re running the app
+              locally on your computer or after it&rsquo;s been deployed. You
+              can specify the port for when it&rsquo;s running locally but
+              Heroku will assign a port automatically when it&rsquo;s deployed.
+              The port number will be made available as an environment variable.
+              So we need to give it the two options like this:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">port</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">process</span>.<span style="color:#a6e22e">env</span>.<span style="color:#a6e22e">PORT</span> <span style="color:#f92672">||</span> <span style="color:#ae81ff">5000</span>;
+</code></pre>
+            </div>
+            <p>
+              This is telling the app to check first if there&rsquo;s an
+              environment variable called PORT available (provided automatically
+              by Heroku) and, if there isn&rsquo;t, then use port 5000 (you can
+              choose any port that&rsquo;s free).
+            </p>
+            <p>
+              Let&rsquo;s tell the app to listen to the port. You can also add a
+              console.log to confirm it&rsquo;s connected.
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">listen</span>(<span style="color:#a6e22e">port</span>, () =&gt; {
+  <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;listening on port &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">port</span>);
+});
+</code></pre>
+            </div>
+            <p>
+              Now let&rsquo;s connect to our databse. If you don&rsquo;t have
+              MongoDB installed, you can download it
+              <a href="https://www.mongodb.com/download-center">here</a>. Now,
+              just like with the port, we need to give it two options depending
+              on whether the app is running locally or with Heroku. If
+              it&rsquo;s running locally, the app should use the database
+              installed on your computer and, if it&rsquo;s deployed with
+              Heroku, it should use the mLab MongoDB database that we&rsquo;ll
+              add to our app on Heroku later.
+            </p>
+            <p>
+              A connection URI for Mongo will be provided as an environment
+              variable by Heroku when deployed so again we give the app two
+              options like this:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">myMongoUri</span> <span style="color:#f92672">=</span>
+  <span style="color:#a6e22e">process</span>.<span style="color:#a6e22e">env</span>.<span style="color:#a6e22e">MONGODB_URI</span> <span style="color:#f92672">||</span> <span style="color:#e6db74">&#34;mongodb://localhost:27017/country-info&#34;</span>;
+</code></pre>
+            </div>
+            <p>
+              Now we&rsquo;ll tell the app to connect to Mongo (if you
+              don&rsquo;t include the additional options you&rsquo;ll get
+              warnings in your console):
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">mongoose</span>.<span style="color:#a6e22e">connect</span>(<span style="color:#a6e22e">myMongoUri</span>, {
+  <span style="color:#a6e22e">useNewUrlParser</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span>,
+  <span style="color:#a6e22e">useUnifiedTopology</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span>,
+});
+</code></pre>
+            </div>
+            <p>
+              It would be useful to know whether the app has connected to the
+              databse successfully or not after we start the server. We can get
+              it to tell us like this:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">db</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">mongoose</span>.<span style="color:#a6e22e">connection</span>;
+
+<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">on</span>(<span style="color:#e6db74">&#34;error&#34;</span>, () =&gt; {
+  <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;there was a problem connecting to database&#34;</span>);
+});
+
+<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">once</span>(<span style="color:#e6db74">&#34;open&#34;</span>, () =&gt; {
+  <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;connected to database&#34;</span>);
+});
+</code></pre>
+            </div>
+            <p>
+              We can now check that our server works and is able to connect to
+              our local database by running:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-bash" data-lang="bash">nodemon server
+</code></pre>
+            </div>
+            <p>
+              Hopefully your server is now running without any issues. Now, as
+              we&rsquo;ll be saving data to MongoDB, we&rsquo;ll need to define
+              at least one schema/model. So let&rsquo;s create a models folder
+              in our project with a JavaScript file called
+              <em>Country.model.js</em> and add the following code:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">mongoose</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;mongoose&#34;</span>);
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">Schema</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">mongoose</span>.<span style="color:#a6e22e">Schema</span>;
+
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">Country</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Schema</span>({
+  <span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> { <span style="color:#a6e22e">type</span><span style="color:#f92672">:</span> String, <span style="color:#a6e22e">requred</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span> },
+  <span style="color:#a6e22e">capital</span><span style="color:#f92672">:</span> { <span style="color:#a6e22e">type</span><span style="color:#f92672">:</span> String, <span style="color:#a6e22e">requred</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span> },
+});
+
+<span style="color:#a6e22e">module</span>.<span style="color:#a6e22e">exports</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">mongoose</span>.<span style="color:#a6e22e">model</span>(<span style="color:#e6db74">&#34;Country&#34;</span>, <span style="color:#a6e22e">Country</span>);
+</code></pre>
+            </div>
+            <p>
+              Then require this model at the top of the <em>server.js</em> file:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">Country</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;./models/Country.model&#34;</span>);
+</code></pre>
+            </div>
+            <p>
+              We&rsquo;re almost ready to add our API endpoints. Before we do,
+              we need to add one line to allow the server to parse any JSON it
+              receives in the bodies of POST requests:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#a6e22e">express</span>.<span style="color:#a6e22e">json</span>());
+</code></pre>
+            </div>
+            <p>
+              I&rsquo;m going to give my app two endpoints. One to get all the
+              data saved in the database and one to allow us to save new data
+              (you can add endpoints for deleting and editing yourself if you
+              like):
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;/countries&#34;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+  <span style="color:#a6e22e">Country</span>.<span style="color:#a6e22e">find</span>().<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">countries</span>) =&gt; {
+    <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">200</span>).<span style="color:#a6e22e">send</span>(<span style="color:#a6e22e">countries</span>);
+  });
+});
+
+<span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">post</span>(<span style="color:#e6db74">&#34;/addcountry&#34;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+  <span style="color:#66d9ef">const</span> { <span style="color:#a6e22e">name</span>, <span style="color:#a6e22e">capital</span> } <span style="color:#f92672">=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">body</span>;
+  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">country</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Country</span>({ <span style="color:#a6e22e">name</span>, <span style="color:#a6e22e">capital</span> });
+  <span style="color:#a6e22e">country</span>
+    .<span style="color:#a6e22e">save</span>()
+    .<span style="color:#a6e22e">then</span>(() =&gt; {
+      <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">200</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#34;New country was saved successfully&#34;</span>);
+    })
+    .<span style="color:#66d9ef">catch</span>((<span style="color:#a6e22e">err</span>) =&gt; {
+      <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Error: &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">err</span>);
+    });
+});
+</code></pre>
+            </div>
+            <p>
+              When we deploy our app later, Heroku is going to use the
+              <em>npm run build</em> command in the <em>package.json</em> file
+              of our front-end to bundle all of the front-end files into one
+              optimised build folder. We need to tell the server where to find
+              these files after this happens.
+            </p>
+            <p>
+              To do this, we&rsquo;ll first require a module called path at the
+              top of the file (this module is part of the Node.js core so it
+              doesn&rsquo;t need to be installed).
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">path</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;path&#34;</span>);
+</code></pre>
+            </div>
+            <p>Now add this line to the file:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#a6e22e">express</span>.<span style="color:#66d9ef">static</span>(<span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">join</span>(<span style="color:#ae81ff">__</span><span style="color:#a6e22e">dirname</span>, <span style="color:#e6db74">&#34;client/build&#34;</span>)));
+</code></pre>
+            </div>
+            <p>
+              The path module that we&rsquo;ve used simply joins the path to the
+              current directory with the path to the file you specify. Express
+              then knows to look in this location for the static files (which
+              will be our JavaScript and any CSS).
+            </p>
+            <p>
+              Now take a look in the project&rsquo;s <em>package.json</em> file
+              and make sure there is a <em>start</em> script and that its value
+              is set to <em>node server</em> (Heroku will use this command to
+              start the app during deployment).
+            </p>
+            <h3 id="the-front-end">THE FRONT-END</h3>
+            <p>Now let&rsquo;s create a new React project with:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">npx</span> <span style="color:#a6e22e">create</span><span style="color:#f92672">-</span><span style="color:#a6e22e">react</span><span style="color:#f92672">-</span><span style="color:#a6e22e">app</span> <span style="color:#a6e22e">client</span>
+</code></pre>
+            </div>
+            <p>
+              I&rsquo;m going to create two components - one will be a form for
+              the user to add information about countries and the other will be
+              to display this information.
+            </p>
+            <p>This is the first:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-jsx" data-lang="jsx"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">React</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;react&#34;</span>;
+
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">NewCountryForm</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">props</span>) =&gt; {
+  <span style="color:#66d9ef">return</span> (
+    &lt;<span style="color:#f92672">form</span> <span style="color:#a6e22e">onSubmit</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">props</span>.<span style="color:#a6e22e">addCountry</span>}&gt;
+      &lt;<span style="color:#f92672">h2</span>&gt;<span style="color:#a6e22e">Add</span> <span style="color:#a6e22e">country</span>&lt;/<span style="color:#f92672">h2</span>&gt;
+      &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">className</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;form-section&#34;</span>&gt;
+        &lt;<span style="color:#f92672">label</span> <span style="color:#a6e22e">htmlFor</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;name&#34;</span>&gt;<span style="color:#a6e22e">Name</span><span style="color:#f92672">:</span> &lt;/<span style="color:#f92672">label</span>&gt;
+        &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text&#34;</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;name&#34;</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;name&#34;</span> /&gt;
+      &lt;/<span style="color:#f92672">div</span>&gt;
+      &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">className</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;form-section&#34;</span>&gt;
+        &lt;<span style="color:#f92672">label</span> <span style="color:#a6e22e">htmlFor</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;capital&#34;</span>&gt;<span style="color:#a6e22e">Capital</span><span style="color:#f92672">:</span> &lt;/<span style="color:#f92672">label</span>&gt;
+        &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text&#34;</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;capital&#34;</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;capital&#34;</span> /&gt;
+      &lt;/<span style="color:#f92672">div</span>&gt;
+      &lt;<span style="color:#f92672">button</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;submit&#34;</span>&gt;<span style="color:#a6e22e">Submit</span>&lt;/<span style="color:#f92672">button</span>&gt;
+    &lt;/<span style="color:#f92672">form</span>&gt;
+  );
+};
+
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">default</span> <span style="color:#a6e22e">NewCountryForm</span>;
+</code></pre>
+            </div>
+            <p>And this is the second:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-jsx" data-lang="jsx"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">React</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;react&#34;</span>;
+
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">CountryDisplay</span> <span style="color:#f92672">=</span> ({ <span style="color:#a6e22e">countries</span> }) =&gt; {
+  <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">countries</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">countries</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">===</span> <span style="color:#ae81ff">0</span>) {
+    <span style="color:#66d9ef">return</span> &lt;<span style="color:#f92672">h2</span>&gt;<span style="color:#a6e22e">No</span> <span style="color:#a6e22e">countries</span> <span style="color:#a6e22e">saved</span>&lt;/<span style="color:#f92672">h2</span>&gt;;
+  } <span style="color:#66d9ef">else</span> {
+    <span style="color:#66d9ef">return</span> (
+      &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">className</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;display-wrapper&#34;</span>&gt;
+        &lt;<span style="color:#f92672">h2</span>&gt;<span style="color:#a6e22e">Country</span> <span style="color:#a6e22e">List</span>&lt;/<span style="color:#f92672">h2</span>&gt;
+        &lt;<span style="color:#f92672">table</span>&gt;
+          &lt;<span style="color:#f92672">tr</span>&gt;
+            &lt;<span style="color:#f92672">th</span>&gt;<span style="color:#a6e22e">Country</span>&lt;/<span style="color:#f92672">th</span>&gt;
+            &lt;<span style="color:#f92672">th</span>&gt;<span style="color:#a6e22e">Capital</span>&lt;/<span style="color:#f92672">th</span>&gt;
+          &lt;/<span style="color:#f92672">tr</span>&gt;
+          {<span style="color:#a6e22e">countries</span>.<span style="color:#a6e22e">map</span>((<span style="color:#a6e22e">country</span>, <span style="color:#a6e22e">index</span>) =&gt; (
+            &lt;<span style="color:#f92672">tr</span> <span style="color:#a6e22e">key</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">index</span>}&gt;
+              &lt;<span style="color:#f92672">td</span>&gt;{<span style="color:#a6e22e">country</span>.<span style="color:#a6e22e">name</span>}&lt;/<span style="color:#f92672">td</span>&gt;
+              &lt;<span style="color:#f92672">td</span>&gt;{<span style="color:#a6e22e">country</span>.<span style="color:#a6e22e">capital</span>}&lt;/<span style="color:#f92672">td</span>&gt;
+            &lt;/<span style="color:#f92672">tr</span>&gt;
+          ))}
+        &lt;/<span style="color:#f92672">table</span>&gt;
+      &lt;/<span style="color:#f92672">div</span>&gt;
+    );
+  }
+};
+
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">default</span> <span style="color:#a6e22e">CountryDisplay</span>;
+</code></pre>
+            </div>
+            <p>
+              I need to install one package - axios - in my front-end folder.
+              I&rsquo;m going to use this to make calls to the server.
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-bash" data-lang="bash">npm i axios
+</code></pre>
+            </div>
+            <p>
+              Now in the <em>app.js</em> file, I&rsquo;m going to use two React
+              Hooks - useState and useEffect. The first to save the data in
+              state and the second to trigger our fetch function when the
+              component mounts. So import these along with axios and our two
+              components at the top of the file:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">React</span>, { <span style="color:#a6e22e">useState</span>, <span style="color:#a6e22e">useEffect</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;react&#34;</span>;
+<span style="color:#66d9ef">import</span> <span style="color:#a6e22e">axios</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;axios&#34;</span>;
+<span style="color:#66d9ef">import</span> <span style="color:#a6e22e">NewCountryForm</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;./components/NewCountryForm&#34;</span>;
+<span style="color:#66d9ef">import</span> <span style="color:#a6e22e">CountryDisplay</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;./components/CountryDisplay&#34;</span>;
+</code></pre>
+            </div>
+            <p>The return statement should something look like this:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-jsx" data-lang="jsx"><span style="color:#66d9ef">return</span> (
+  &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">className</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;app-wrapper&#34;</span>&gt;
+    &lt;<span style="color:#f92672">NewCountryForm</span> <span style="color:#a6e22e">addCountry</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">addCountry</span>} /&gt;
+    &lt;<span style="color:#f92672">CountryDisplay</span> <span style="color:#a6e22e">countries</span><span style="color:#f92672">=</span>{<span style="color:#a6e22e">countries</span>} /&gt;
+  &lt;/<span style="color:#f92672">div</span>&gt;
+);
+</code></pre>
+            </div>
+            <p>
+              And don&rsquo;t forget to export the component at the bottom of
+              the file:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-jsx" data-lang="jsx"><span style="color:#66d9ef">export</span> <span style="color:#66d9ef">default</span> <span style="color:#a6e22e">App</span>;
+</code></pre>
+            </div>
+            <p>
+              Above the return statement, we can add a function that makes the
+              GET request to the server and saves the retrieved data in state:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">fetchData</span> <span style="color:#f92672">=</span> () =&gt; {
+  <span style="color:#a6e22e">axios</span>
+    .<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;/countries&#34;</span>)
+    .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">res</span>) =&gt; {
+      <span style="color:#a6e22e">setCountries</span>(<span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">data</span>);
+    })
+    .<span style="color:#66d9ef">catch</span>((<span style="color:#a6e22e">err</span>) =&gt; {
+      <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">err</span>);
+    });
+};
+</code></pre>
+            </div>
+            <p>
+              I want this to run whenever the user opens the app so I&rsquo;ll
+              use the useEffect Hook we imported:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">useEffect</span>(() =&gt; {
+  <span style="color:#a6e22e">fetchData</span>();
+}, []);
+</code></pre>
+            </div>
+            <p>
+              And this is the function that makes a POST request to add a new
+              country and then fetches from the database again:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">addCountry</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">e</span>) =&gt; {
+  <span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">preventDefault</span>();
+  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">target</span>.<span style="color:#a6e22e">name</span>.<span style="color:#a6e22e">value</span>;
+  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">capital</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">target</span>.<span style="color:#a6e22e">capital</span>.<span style="color:#a6e22e">value</span>;
+  <span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">target</span>.<span style="color:#a6e22e">reset</span>();
+  <span style="color:#a6e22e">axios</span>
+    .<span style="color:#a6e22e">post</span>(<span style="color:#e6db74">&#34;/addcountry&#34;</span>, { <span style="color:#a6e22e">name</span>, <span style="color:#a6e22e">capital</span> })
+    .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">res</span>) =&gt; {
+      <span style="color:#a6e22e">fetchData</span>();
+    })
+    .<span style="color:#66d9ef">catch</span>((<span style="color:#a6e22e">err</span>) =&gt; {
+      <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">err</span>);
+    });
+};
+</code></pre>
+            </div>
+            <p>
+              You&rsquo;ll see that I&rsquo;m not including the full URI of the
+              server in the API calls. This is because I&rsquo;m going to add
+              the first part of the URI at the top of the
+              <em>package.json</em> file (of the front-end) so I don&rsquo;t
+              have to write it out in full every time.
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#e6db74">&#34;proxy&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;http://localhost:5000&#34;</span>
+</code></pre>
+            </div>
+            <p>
+              Now that we&rsquo;re finished writing the code for the front-end,
+              we&rsquo;ll go back to the <em>package.json</em> file in the
+              top-level of our project and add a new script that will tell
+              Heroku to create the optimised build version by looking in the
+              client folder, downloading the dependencies and running the
+              <em>build</em> command:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#e6db74">&#34;heroku-postbuild&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;cd client &amp;&amp; npm install &amp;&amp; npm run build&#34;</span>
+</code></pre>
+            </div>
+            <p>
+              Now, before deploying, it&rsquo;s a good idea to run the app
+              locally to make sure everything&rsquo;s working. If it is and
+              you&rsquo;ve got no errors, then we can move on to deployment.
+            </p>
+            <h2 id="deployment-to-heroku">DEPLOYMENT TO HEROKU</h2>
+            <p>
+              There are two ways to deploy to Heroku. The first way is going to
+              the Heroku website and connecting to your project&rsquo;s GitHub
+              repo. The second is using the Heroku CLI in the terminal and a
+              remote Git repo that Heroku creates for you (not involving GitHub
+              at all). We&rsquo;ll look at both ways below.
+            </p>
+            <h3 id="connecting-a-github-repo">CONNECTING A GITHUB REPO</h3>
+            <p>
+              With this method, you need to have your project on GitHub. Then
+              simply go to the Heroku website, select <em>New</em>,
+              <em>Create new app</em>, enter a name and select a region. Then in
+              the deployment section, choose <em>GitHub</em> and then select the
+              repository you want to connect to. You can choose a particular
+              branch and you can also choose between manual deplyment or
+              automatic deployment (your Heroku app will be updated whenever you
+              push to GitHub).
+            </p>
+            <h3 id="using-the-heroku-cli">USING THE HEROKU CLI</h3>
+            <p>
+              First, you&rsquo;ll need the CLI installed on your computer. You
+              can download if from the website
+              <a
+                href="https://devcenter.heroku.com/articles/heroku-cli#download-and-install"
+                >here</a
+              >.
+            </p>
+            <p>
+              After committing all changes to Git, in the project directory in
+              the terminal run:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">heroku</span> <span style="color:#a6e22e">create</span>
+</code></pre>
+            </div>
+            <p>
+              If it&rsquo;s your first time using the Heroku CLI you&rsquo;ll be
+              prompted to log in. This command creates a new project that you
+              can access on the Heroku website along with its own Git repo that
+              you can push to.
+            </p>
+            <p>After that push to the Heroku Git repo with:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">git</span> <span style="color:#a6e22e">push</span> <span style="color:#a6e22e">heroku</span> <span style="color:#a6e22e">master</span>
+</code></pre>
+            </div>
+            <h3 id="adding-the-database">ADDING THE DATABASE</h3>
+            <p>
+              Once the deployment process has completed, go to the Heroku
+              website, choose the project you just created and, in the overview
+              tab, click on <em>configure add-ons</em>, search for
+              <em>mLab MongoDB</em> and add it (use the free sandbox version).
+            </p>
+            <p>
+              Now open up the app from Heroku and test it out. When you add any
+              data it should be saved to the databse attached to Heroku (you can
+              check the contents of this database by clicking on mLab MongoDB in
+              the overview tab). If you run the app locally it should save to
+              your local MongoDB.
+            </p>
+          </div>
+
+          <div class="post-info">
+            <div class="post-date dt-published">2020-01-03</div>
+
+            <a class="post-hidden-url u-url" href="/posts/deploying-to-heroku/"
+              >/posts/deploying-to-heroku/</a
+            >
+            <a
+              href=""
+              class="p-name p-author post-hidden-author h-card"
+              rel="me"
+            ></a>
+
+            <div class="post-taxonomies"></div>
+          </div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

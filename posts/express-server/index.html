@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html lang="" data-theme="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <title>Setting up an Express server - Tom&#39;s Dev Blog</title>
+    <meta name="description" content="" />
+    <link
+      rel="stylesheet"
+      href="../../style.css"
+    />
+  </head>
+  <body>
+    
+    <div class="container">
+      <header class="common-header">
+        <div class="header-top">
+          <h1 class="site-title">
+            <a href="/">Tom&#39;s Dev Blog</a>
+          </h1>
+        </div>
+
+        
+      </header>
+      <main id="main" tabindex="-1">
+        <article class="post h-entry">
+          <header class="post-header">
+            <h1 class="p-name post-title">Setting up an Express server</h1>
+          </header>
+          <div class="content e-content">
+            <p>
+              Setting up a server in Node using the Express framework is very
+              straightforward. First of all, you need to make sure you have Node
+              installed on your computer. If you’re not sure you have it
+              installed, you can check by entering this command in the terminal:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-bash" data-lang="bash">node -v
+</code></pre>
+            </div>
+            <p>
+              If you have Node installed, this will tell you the version. If you
+              don’t, you’ll see an error and then you should download it.
+            </p>
+            <p>
+              Once you’ve got Node installed on your computer, create a new
+              folder for your application. Call it whatever you want. After
+              that, you need to initialise your Node application by using the
+              terminal to navigate to the folder you created and running the
+              following command:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-bash" data-lang="bash">npm init
+</code></pre>
+            </div>
+            <p>
+              It will ask you to fill in some info about the application (name,
+              author etc.) but, if you want, you can just hit enter on each
+              field to leave them all blank.
+            </p>
+            <p>
+              When this is finished, your folder should contain a new
+              <em>package.json</em> file. This file will contain information
+              about any third-party packages you install in your application.
+            </p>
+            <p>
+              While you don’t have to use Express to set up a server on Node, it
+              makes it much easier. So install Express via the terminal with the
+              following command:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-bash" data-lang="bash">npm install express
+</code></pre>
+            </div>
+            <p>or the short version:</p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-bash" data-lang="bash">npm i express
+</code></pre>
+            </div>
+            <p>
+              After this has installed, open a new file in your text editor. You
+              can call it server.js. The first thing to do is require Express at
+              the top of the file like this:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">express</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;express&#34;</span>);
+</code></pre>
+            </div>
+            <p>
+              Note that in Node, by default, you have to use the CommonJS syntax
+              (using <em>require</em>) rather than the ES6 module syntax (using
+              <em>import</em>) which you might be used to from React.
+            </p>
+            <p>
+              Next, create your server by instantiating Express (this variable
+              is typically named <em>app</em> but some people prefer
+              <em>server</em>):
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">app</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">express</span>();
+</code></pre>
+            </div>
+            <p>
+              And, finally, tell it to listen to a port on your machine like
+              this:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">listen</span>(<span style="color:#ae81ff">5000</span>);
+</code></pre>
+            </div>
+            <p>
+              You can choose whichever port you like, as long as nothing else is
+              running on it. You can also include a callback with a
+              <code>console.log</code> to confirm that it’s connected
+              successfully:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">listen</span>(<span style="color:#ae81ff">5000</span>, () =&gt; {
+  <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;listening on port 5000&#34;</span>);
+});
+</code></pre>
+            </div>
+            <p>
+              And that’s it! Now all you need to do is start your application
+              with the command:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-bash" data-lang="bash">node server.js
+</code></pre>
+            </div>
+            <p>
+              Your server should now be running and listening on port 5000 and
+              you should see the <code>console.log</code> message in the
+              terminal.
+            </p>
+            <p>
+              However, if you visit localhost:5000 in your browser, you won’t
+              see much as you haven’t told the server to actually do anything.
+              You can get it to display a message like this:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;/&#34;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+  <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#34;I just built my first Express server!&#34;</span>);
+});
+</code></pre>
+            </div>
+            <p>
+              This tells your server that whenever a user navigates to its main
+              url (<em>/</em>), that it should send back that string as a
+              response (<em>res</em>).
+            </p>
+            <p>
+              To see this, stop your app with <code>ctrl + c</code> and start it
+              again. If you refresh your browser, you should see the message
+              displayed.
+            </p>
+            <p>
+              Congratulations! You now know how to set up a server in Node. You
+              can build on this by adding different routes which send back
+              different messages. For example:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;/about&#34;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+  <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#34;Welcome to the About page!&#34;</span>);
+});
+</code></pre>
+            </div>
+            <p>
+              If you don&rsquo;t want to have to restart your server every time
+              you make a change, you can install an npm package called
+              <em>nodemon</em> and use this to start your server instead of
+              node:
+            </p>
+            <div class="highlight">
+              <pre
+                tabindex="0"
+                style="
+                  color: #f8f8f2;
+                  background-color: #272822;
+                  -moz-tab-size: 4;
+                  -o-tab-size: 4;
+                  tab-size: 4;
+                "
+              ><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">nodemon</span> <span style="color:#a6e22e">server</span>
+</code></pre>
+            </div>
+            <p>
+              Note that it&rsquo;s not necessary to include the .js file
+              extension when you use node or nodemon to start your server.
+            </p>
+          </div>
+
+          <div class="post-info">
+            <div class="post-date dt-published">2019-11-27</div>
+
+            <a class="post-hidden-url u-url" href="/posts/express-server/"
+              >/posts/express-server/</a
+            >
+            <a
+              href=""
+              class="p-name p-author post-hidden-author h-card"
+              rel="me"
+            ></a>
+
+            <div class="post-taxonomies"></div>
+          </div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

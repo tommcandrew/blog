@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="" data-theme="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <title>The different ways to render a web page - Tom&#39;s Dev Blog</title>
+    <link
+      rel="stylesheet"
+      href="../../style.css"
+    />
+  </head>
+  <body>
+    
+    <div class="container">
+      <header class="common-header">
+        <div class="header-top">
+          <h1 class="site-title">
+            <a href="/">Tom&#39;s Dev Blog</a>
+          </h1>
+        </div>
+
+        
+      </header>
+      <main id="main" tabindex="-1">
+        <article class="post h-entry">
+          <header class="post-header">
+            <h1 class="p-name post-title">
+              The different ways to render a web page
+            </h1>
+          </header>
+          <div class="content e-content">
+            <p>
+              When I first started learning web development, I found terms like
+              <em>static site</em>, <em>dynamic site</em>,
+              <em>server-side rendering</em> and
+              <em>single-page application</em> quite confusing. It wasn’t clear
+              to me what the differences were and exactly how many ways there
+              were to render a web page. In this article I would like to look at
+              the different ways that websites can be assembled and delivered to
+              the browser and clarify some of the associated terminology.
+            </p>
+            <p>
+              The oldest method is <strong>static rendering</strong>. This means
+              that a HTML document will be pre-prepared for every page of the
+              site. These files will simply sit on the server and, when a user
+              navigates to a particular route, such as <em>www.mysite.com/about</em>, then the corresponding <em>about.html</em> file will be sent
+              back. Although this type of website is called a
+              <strong>static site</strong>, that doesn’t mean that it can’t
+              contain dynamic content. The HTML file sent back can have
+              associated JavaScript which can manipulate the page
+              <em>in the browser</em> (e.g. with animations or AJAX requests).
+              When people use the term static site, it simply means that the
+              site was not generated on the server when the client requested it.
+              It had been prepared <em>in advance</em>. It is worth keeping in
+              mind that, in the early days, there was a clear division between
+              the content of a site (i.e. the HTML) and JavaScript, which was
+              used to simply <em>enhance</em> the UI with some interactivity.
+            </p>
+            <p>
+              The main advantage of a static website is that it’s fast. This is
+              because no JavaScript needs to run on the server or the client to
+              create the page. Another advantage is that the site will have
+              fewer security vulnerabilities due to the smaller number of moving
+              parts. In addition, a static site can be hosted on a CDN, rather
+              than a single server, and this will result in lower costs. The
+              disadvantage of static rendering is, if your site has more than a
+              handful of pages, it would be extremely time-consuming to create
+              each one by hand.
+            </p>
+            <p>
+              However, tools called
+              <strong>static site generators (SSGs)</strong>, which are becoming
+              increasingly popular, automate this work. SSGs are basically
+              programs that take your code and content (e.g. markdown files,
+              images) and output a folder with static HTML, CSS and JS for every
+              possible view of your site. These pre-prepared files can then be
+              served by a server or CDN. There are hundreds of SSGs out there
+              but some of the most popular ones are Gatsby, Jekyll and Hugo.
+            </p>
+            <p>
+              In contrast with a static site, pages of a
+              <strong>dynamic site</strong> are prepared on request by a backend
+              language like Node, PHP or Python (typically in conjunction with a
+              <strong>template engine</strong>). This method is called
+              <strong>server-side rendering (SSR)</strong>. Because the pages
+              are created on the fly, the content can be adjusted depending on
+              the circumstances. For example, when you visit a new page on the
+              site, if you’re logged in, you might see a “log out” button in the
+              corner. Otherwise, you might see a “log in” button. It’s important
+              to note that, whether the site is static or dynamic, the end
+              result is exactly the same for the user. They will end up with a
+              HTML document for that page plus any linked CSS and JavaScript.
+              The key difference is <em>when</em> it was created.
+            </p>
+            <p>
+              The advantages of server-side rendering are that pages can be
+              customised more easily for the user. The main disadvantage is that
+              it may take slightly longer to receive the page compared to a
+              static site, depending on the operations being carried out (e.g.
+              fetching data from a database) and a spike in traffic may affect
+              the site’s performance as the server will have to do a lot of
+              work.
+            </p>
+            <p>
+              A popular alternative to server-side rendering is
+              <strong>client-side rendering (CSR)</strong>. This means that the
+              whole site is constructed by JavaScript in the browser
+              <em>after being downloaded</em>. Most sites built in this way are
+              <strong>single-page applications (SPAs)</strong>. When a user
+              visits such a site, their browser will download a single HTML
+              document which contains no real content itself, just links to all
+              of the required JavaScript and CSS, which will also be downloaded.
+              As with static sites, no rendering is done on the server. After
+              loading, the JavaScript will insert content into the page and,
+              when the user navigates around the site, the JavaScript will
+              replace the current content of the page with new content, giving
+              the user the impression of actually moving between different
+              pages. The History API is used to allow the user to navigate
+              backwards and forwards, just like with a static site. No further
+              request needs to be made to the server after the code for the site
+              is downloaded. Of course, the JavaScript can make further requests
+              to the server (e.g. to save user info to a database) but this
+              won’t be required to load the pages of the site.
+            </p>
+            <p>
+              The main benefit of an SPA is that, because the browser doesn’t
+              need to make a request to the server every time the user navigates
+              to a new page, it will feel faster. Performance is also improved
+              because, when using an SPA framework like React, only the parts of
+              the DOM that have actually changed will be updated. Another
+              advantage is that, just like a static site, a frontend-only SPA
+              can be served from a CDN, which is usually cheaper and faster. If
+              it is hosted on a server, spikes in traffic shouldn’t be as much
+              of a problem as it won’t need to do as much work.
+            </p>
+            <p>
+              Potential downsides to client-side rendering include the fact
+              that, in order to benefit from the smoother performance, the user
+              needs to be on a modern device with a decent internet connection.
+              If they’re not, downloading and running all of the JavaScript for
+              the site will be slow and will result in a poor user experience.
+              Another disadvantage is that the initial load time of the site
+              will be longer as the browser needs to download the code for the
+              entire site (although techniques such as code-splitting can reduce
+              this delay). Finally, search engine crawlers will not easily be
+              able to view the contents of your site and this will result in
+              poor SEO.
+            </p>
+            <p>
+              In recent years, new approaches have emerged which aim to get the
+              best of both worlds - the smooth performance of a client-side
+              rendered SPA as well as the fast initial load associated with
+              server-side rendering. For example, it is now possible to use
+              server-side rendering with the popular SPA frameworks such as
+              React. Although the term <em>server-side rendering</em> is used in
+              this situation, it’s a bit misleading as
+              <em>only the first page</em> the user visits will be rendered on
+              the server. Websites built in this way are sometimes called
+              <strong>universal/isomorphic applications</strong>.
+            </p>
+            <p>
+              In the case of React, you would do this by setting up a server
+              with an endpoint for each of your site’s routes. When the user
+              types in a url for your site in their browser and hits enter, the
+              endpoint for that route will fetch any necessary data and generate
+              a HTML document representing the requested page using
+              ReactDOMServer’s <em>renderToString</em> method. CSS for this page
+              will be extracted from any external stylesheets and inserted
+              between style tags. This HTML document will be sent back to the
+              browser which will be able to display the page immediately. At the
+              same time that this page is rendering to the screen, the
+              JavaScript for the rest of the application will be downloaded
+              asynchronously in the background. Once the JavaScript has been
+              downloaded, React will look at the existing version of the DOM and
+              add in whatever’s missing (e.g. event listeners). This process is
+              called <strong>hydration/rehydration</strong>. Further pages that
+              the user visits beyond this point will not result in server
+              requests (i.e. the application will work as a normal SPA). The key
+              point is that the browser does not need to download or run any
+              JavaScript before rendering the first page on the screen. This
+              makes a big difference because browsers can render HTML and CSS
+              much faster than they can parse and execute JavaScript.
+            </p>
+            <p>
+              The two main benefits of this approach are that you can have an
+              SPA while bypassing the problem of a long initial load and the
+              site’s SEO should also be much better as the search engine crawler
+              will be able to see the content of each page. One downside is that
+              a server is mandatory. In addition, although the initial load time
+              will be shorter, there may be a delay between the user seeing the
+              rendered page and being able to interact with it. This could lead
+              to frustration if links/buttons are initially unresponsive.
+              Something else to consider before taking this route include the
+              fact that you will not be able to use <em>create-react-app</em> to
+              set up your project. You will need to install and configure
+              packages such as <em>babel</em> and <em>webpack</em> manually on
+              the server. Setting up an isomorphic app can mean a lot of extra
+              work which is why you may prefer to use Next.js, a framework which
+              will do most of the work for you.
+            </p>
+            <p>
+              Ultimately, the best approach will depend on a number of factors
+              such as the size of your application and your target audience. If
+              your app is quite small, the difference between them may hardly be
+              noticeable. The important thing to remember is that, if you do run
+              into issues with loading times or performance, there are a number
+              of different options available.
+            </p>
+          </div>
+
+          <div class="post-info">
+            <div class="post-date dt-published">2020-09-21</div>
+
+            <a class="post-hidden-url u-url" href="/posts/rendering-web-pages/"
+              >/posts/rendering-web-pages/</a
+            >
+            <a
+              href=""
+              class="p-name p-author post-hidden-author h-card"
+              rel="me"
+            ></a>
+
+            <div class="post-taxonomies"></div>
+          </div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>
